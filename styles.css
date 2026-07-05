@@ -101,8 +101,8 @@ nav.scrolled {
   height: 68px;
 }
 .nav-logo { display: flex; align-items: center; height: 100%; }
-.nav-logo img { height: 46px; width: auto; border-radius: 6px; transition: height .35s var(--ease-out); }
-nav.scrolled .nav-logo img { height: 38px; }
+.nav-logo img { height: 68px; width: auto; border-radius: 6px; transition: height .35s var(--ease-out); }
+nav.scrolled .nav-logo img { height: 56px; }
 .nav-links { display: flex; align-items: center; gap: 32px; list-style: none; }
 .nav-links a { color: var(--cream-2); text-decoration: none; font-size: 13px; letter-spacing: .08em; text-transform: uppercase; position: relative; transition: color .2s; }
 .nav-links a:not(.nav-icon)::after {
@@ -415,7 +415,7 @@ footer {
   display: flex; flex-direction: column; gap: 16px; align-items: center;
   color: var(--cream-3); font-size: .85rem;
 }
-.footer-logo { height: 44px; width: auto; border-radius: 6px; }
+.footer-logo { height: 64px; width: auto; border-radius: 6px; }
 .footer-social { width: 34px; height: 34px; border-radius: 50%; border: 1px solid var(--line); display: flex; align-items: center; justify-content: center; color: var(--cream-2); transition: border-color .2s, color .2s; }
 .footer-social svg { width: 16px; height: 16px; }
 .footer-social:hover { border-color: var(--gold); color: var(--gold); }
