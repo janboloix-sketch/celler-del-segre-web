@@ -17,7 +17,8 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400;1,9..144,500;1,9..144,600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
-<link rel="stylesheet" href="styles.css?v=20260705">
+<link rel="preload" as="image" href="assets/img/local-celler-del-segre.jpg" fetchpriority="high">
+<link rel="stylesheet" href="styles.css?v=20260706">
 
 <script type="application/ld+json">
 {
@@ -86,26 +87,34 @@
 
 <main id="main">
 
-<section class="hero" id="top">
-  <div class="hero-bg" aria-hidden="true"></div>
-  <div class="hero-grain" aria-hidden="true"></div>
+<section class="hero-zoom scroll-track" id="top">
+  <div class="hero-zoom-sticky">
+    <img class="hero-zoom-bg" data-scrub="zoom-bg" src="assets/img/local-celler-del-segre.jpg" alt="Façana d'El Celler del Segre a Torres de Segre" fetchpriority="high">
+    <div class="hero-zoom-overlay" aria-hidden="true"></div>
+    <div class="hero-zoom-grain" aria-hidden="true"></div>
 
-  <div class="hero-content">
-    <p class="hero-kicker reveal">Restaurant · Braseria · Torres de Segre</p>
-    <h1 class="hero-title reveal">El Celler del Segre</h1>
-    <div class="hero-links" data-scrub="hero">
-      <a href="#menu" class="hero-link">Menú<span class="hero-link-line"></span></a>
-      <a href="#reserva" class="hero-link">Reserva<span class="hero-link-line"></span></a>
-      <a href="#contacte" class="hero-link">Contacte<span class="hero-link-line"></span></a>
+    <div class="hero-zoom-content" data-scrub="zoom-fade">
+      <p class="hero-kicker reveal">Restaurant · Braseria · Torres de Segre</p>
+      <h1 class="hero-title reveal">El Celler del Segre</h1>
+      <div class="hero-links">
+        <a href="#menu" class="hero-link">Menú<span class="hero-link-line"></span></a>
+        <a href="#reserva" class="hero-link">Reserva<span class="hero-link-line"></span></a>
+        <a href="#contacte" class="hero-link">Contacte<span class="hero-link-line"></span></a>
+      </div>
+      <div class="hero-info-line reveal">
+        <span>Carrer 11 de Setembre, Torres de Segre</span>
+        <span class="dot-sep">·</span>
+        <a href="tel:973792095">973 79 20 95</a>
+        <span class="dot-sep">·</span>
+        <span class="hero-status" id="heroStatusBadge"><span class="status-dot"></span><span id="heroStatusText">Comprovant...</span></span>
+      </div>
     </div>
-  </div>
 
-  <div class="hero-info-line reveal">
-    <span>Carrer 11 de Setembre, Torres de Segre</span>
-    <span class="dot-sep">·</span>
-    <a href="tel:973792095">973 79 20 95</a>
-    <span class="dot-sep">·</span>
-    <span class="hero-status" id="heroStatusBadge"><span class="status-dot"></span><span id="heroStatusText">Comprovant...</span></span>
+    <figure class="hero-menu-polaroid" data-scrub="zoom-reveal">
+      <span class="polaroid-tape" aria-hidden="true"></span>
+      <img src="assets/img/menu-real.jpg" alt="Carta física d'El Celler del Segre">
+      <figcaption>La nostra carta</figcaption>
+    </figure>
   </div>
 </section>
 
@@ -179,6 +188,35 @@
 
   <div class="weekend-note reveal">
     <p><strong>Menú de cap de setmana</strong> — consultar preu i plats. Alguns clients l'han descrit com més elaborat que el d'entre setmana. <a href="tel:973792095">Truca'ns</a> per conèixer l'oferta actual.</p>
+  </div>
+</section>
+
+<section class="why-us-scroll scroll-track" id="perque-triar-nos">
+  <div class="why-us-sticky">
+    <div class="why-us-image">
+      <img src="assets/img/local-celler-del-segre.jpg" alt="El Celler del Segre a Torres de Segre" loading="lazy" decoding="async">
+    </div>
+    <div class="why-us-steps">
+      <p class="section-kicker">Per què triar-nos</p>
+      <ol class="why-step-list">
+        <li class="why-step">
+          <span class="why-step-num">01</span>
+          <div><h3>Cuina de proximitat</h3><p>Sabors de la zona i plats casolans, cuinats cada dia.</p></div>
+        </li>
+        <li class="why-step">
+          <span class="why-step-num">02</span>
+          <div><h3>Menú del dia a bon preu</h3><p>Menú complet des de 14 €, amb beguda i postres inclosos.</p></div>
+        </li>
+        <li class="why-step">
+          <span class="why-step-num">03</span>
+          <div><h3>Racions generoses</h3><p>Diversos clients ho destaquen a les seves ressenyes de Google.</p></div>
+        </li>
+        <li class="why-step">
+          <span class="why-step-num">04</span>
+          <div><h3>Tracte familiar</h3><p>Un restaurant familiar a Torres de Segre, amb un tracte proper.</p></div>
+        </li>
+      </ol>
+    </div>
   </div>
 </section>
 

@@ -101,8 +101,8 @@ nav.scrolled {
   height: 68px;
 }
 .nav-logo { display: flex; align-items: center; height: 100%; }
-.nav-logo img { height: 80px; width: auto; border-radius: 6px; transition: height .35s var(--ease-out); }
-nav.scrolled .nav-logo img { height: 56px; }
+.nav-logo img { height: 46px; width: auto; border-radius: 6px; transition: height .35s var(--ease-out); }
+nav.scrolled .nav-logo img { height: 38px; }
 .nav-links { display: flex; align-items: center; gap: 32px; list-style: none; }
 .nav-links a { color: var(--cream-2); text-decoration: none; font-size: 13px; letter-spacing: .08em; text-transform: uppercase; position: relative; transition: color .2s; }
 .nav-links a:not(.nav-icon)::after {
@@ -145,26 +145,39 @@ nav.scrolled .nav-logo img { height: 56px; }
 .btn-secondary:hover { border-color: var(--gold); color: var(--gold); }
 
 /* =============================================================
-   7. Hero — Juniper-inspired
+   7. Hero — scroll-zoom into the menu
    ============================================================= */
-.hero {
-  position: relative; overflow: clip; min-height: 100svh;
-  display: flex; flex-direction: column; align-items: center; justify-content: center;
-  text-align: center; padding: 140px 6% 60px;
+/* Tall scroll track: the sticky inner pins for the full height minus one
+   viewport, giving the zoom/fade/reveal effects room to play out. */
+.hero-zoom { position: relative; height: 220vh; }
+.hero-zoom-sticky {
+  position: sticky; top: 0; height: 100svh; overflow: hidden;
+  display: flex; align-items: center; justify-content: center; text-align: center;
 }
-.hero-bg {
-  position: absolute; inset: 0; z-index: 0;
-  background:
-    radial-gradient(60% 50% at 50% 30%, rgba(216,30,30,0.16), transparent 70%),
-    radial-gradient(70% 60% at 80% 90%, rgba(233,185,73,0.08), transparent 70%),
-    repeating-linear-gradient(115deg, rgba(245,239,228,0.025) 0px, rgba(245,239,228,0.025) 1px, transparent 1px, transparent 5px),
-    linear-gradient(180deg, #0e0c0b 0%, #080706 100%);
+.hero-zoom-bg {
+  position: absolute; inset: 0; z-index: 0; width: 100%; height: 100%;
+  object-fit: cover; object-position: center;
+  transform-origin: center;
+  transform: scale(calc(1 + var(--scrub-progress, 0) * 0.5));
+  will-change: transform;
 }
-.hero-grain {
-  position: absolute; inset: 0; z-index: 1; opacity: .05; mix-blend-mode: overlay; pointer-events: none;
+.hero-zoom-overlay {
+  position: absolute; inset: 0; z-index: 1;
+  background: linear-gradient(180deg, rgba(0,0,0,.45) 0%, rgba(0,0,0,.6) 50%, rgba(0,0,0,.75) 100%);
+}
+.hero-zoom-grain {
+  position: absolute; inset: 0; z-index: 2; opacity: .05; mix-blend-mode: overlay; pointer-events: none;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
 }
-.hero-content { position: relative; z-index: 2; max-width: 900px; }
+.hero-zoom-content {
+  position: absolute; inset: 0; z-index: 3;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  padding: 0 6%;
+  /* Default (no JS): fully visible, no offset — see initScrub comment on the
+     universal "1 = settled/visible" convention. */
+  opacity: var(--scrub-progress, 1);
+  transform: translateY(calc((1 - var(--scrub-progress, 1)) * -30px));
+}
 .hero-kicker {
   font-size: 12px; letter-spacing: .18em; text-transform: uppercase; color: var(--cream-3);
   margin-bottom: 22px;
@@ -176,9 +189,6 @@ nav.scrolled .nav-logo img { height: 56px; }
 .hero-links {
   display: flex; align-items: center; justify-content: center; flex-wrap: wrap;
   gap: clamp(28px, 5vw, 64px);
-  transform: scale(calc(1 - var(--scrub-progress) * 0.08));
-  opacity: calc(1 - var(--scrub-progress) * 0.75);
-  filter: blur(calc(var(--scrub-progress) * 4px));
 }
 .hero-link {
   position: relative; font-family: var(--serif); font-style: italic; font-weight: 500;
@@ -207,10 +217,38 @@ nav.scrolled .nav-logo img { height: 56px; }
 .status-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--cream-3); }
 .hero-status.is-open .status-dot { background: #4ADE80; box-shadow: 0 0 0 3px rgba(74,222,128,0.2); }
 
+/* Menu photo, presented "pinned to a corkboard" so its real, slightly
+   crooked angle reads as a deliberate rustic touch instead of an error —
+   see the note in the chat about not trying to digitally straighten it. */
+.hero-menu-polaroid {
+  position: absolute; z-index: 4; width: min(300px, 70vw);
+  background: var(--cream); padding: 14px 14px 34px; border-radius: 2px;
+  box-shadow: 0 30px 60px -15px rgba(0,0,0,.65);
+  /* Default (no JS): fully visible at rest, matching the anti-ghost rule —
+     worst case if JS fails, the menu photo just shows immediately instead
+     of being timed to the zoom. Never permanently hidden. */
+  opacity: var(--scrub-progress, 1);
+  transform:
+    rotate(-3deg)
+    scale(calc(0.82 + var(--scrub-progress, 1) * 0.18))
+    translateY(calc((1 - var(--scrub-progress, 1)) * 24px));
+  pointer-events: none;
+}
+.hero-menu-polaroid img { width: 100%; height: auto; display: block; filter: saturate(1.05); }
+.hero-menu-polaroid figcaption {
+  font-family: var(--serif); font-style: italic; color: #2a2622; text-align: center;
+  margin-top: 10px; font-size: .95rem;
+}
+.polaroid-tape {
+  position: absolute; top: -13px; left: 50%; z-index: 1;
+  width: 68px; height: 26px; transform: translateX(-50%) rotate(-4deg);
+  background: rgba(233,185,73,.55); box-shadow: 0 2px 5px rgba(0,0,0,.25);
+}
+
 /* =============================================================
    8. Section shells
    ============================================================= */
-section:not(.hero) { padding: 110px 6%; position: relative; }
+section:not(.hero-zoom):not(.why-us-scroll) { padding: 110px 6%; position: relative; }
 .section-head { max-width: 640px; margin: 0 auto 56px; text-align: center; }
 .section-kicker {
   display: inline-block; color: var(--cream-3); font-weight: 500; text-transform: uppercase;
@@ -296,12 +334,42 @@ section h2 { font-size: clamp(1.9rem, 3.6vw, 2.7rem); color: var(--cream); }
   border: 1px solid var(--line); border-radius: var(--radius-sm);
   display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px;
   color: var(--cream-3); transition: border-color .3s, color .3s;
-  transform: translateY(calc((1 - var(--scrub-progress)) * 26px));
-  opacity: var(--scrub-progress);
+  transform: translateY(calc((1 - var(--scrub-progress, 1)) * 26px));
+  opacity: var(--scrub-progress, 1);
 }
 .gallery-placeholder:hover { border-color: var(--gold-2); color: var(--gold); }
 .camera-icon { width: 30px; height: 30px; }
 .gallery-placeholder span { font-size: 11px; letter-spacing: .1em; text-transform: uppercase; }
+
+/* =============================================================
+   10b. Per què triar-nos — numbered scroll panel
+   ============================================================= */
+.why-us-scroll { position: relative; height: 200vh; }
+.why-us-sticky {
+  position: sticky; top: 0; height: 100svh;
+  display: flex; align-items: center; gap: 64px;
+  max-width: 1180px; margin: 0 auto; padding: 0 6%;
+}
+.why-us-image { flex: 1; height: 60vh; border-radius: var(--radius); overflow: hidden; border: 1px solid var(--line); }
+.why-us-image img { width: 100%; height: 100%; object-fit: cover; }
+.why-us-steps { flex: 1; }
+.why-step-list { list-style: none; display: flex; flex-direction: column; gap: 30px; margin-top: 28px; }
+.why-step {
+  display: flex; gap: 18px; align-items: flex-start;
+  /* Base resting state is clearly legible on its own (not near-invisible) —
+     only the active step gets brighter. No --scrub-progress involved here on
+     purpose: a discrete class toggle can't get stuck at a washed-out
+     mid-opacity the way a continuous fade can. */
+  opacity: .55; transition: opacity .4s var(--ease-out);
+}
+.why-step.is-active { opacity: 1; }
+.why-step-num {
+  font-family: var(--serif); font-size: 1.4rem; color: var(--cream-3);
+  flex-shrink: 0; transition: color .4s var(--ease-out);
+}
+.why-step.is-active .why-step-num { color: var(--accent); }
+.why-step h3 { font-size: 1.15rem; color: var(--cream); margin-bottom: 4px; }
+.why-step p { color: var(--cream-2); font-size: .92rem; }
 
 /* =============================================================
    11. Why / rating
@@ -415,7 +483,7 @@ footer {
   display: flex; flex-direction: column; gap: 16px; align-items: center;
   color: var(--cream-3); font-size: .85rem;
 }
-.footer-logo { height: 80px; width: auto; border-radius: 6px; }
+.footer-logo { height: 44px; width: auto; border-radius: 6px; }
 .footer-social { width: 34px; height: 34px; border-radius: 50%; border: 1px solid var(--line); display: flex; align-items: center; justify-content: center; color: var(--cream-2); transition: border-color .2s, color .2s; }
 .footer-social svg { width: 16px; height: 16px; }
 .footer-social:hover { border-color: var(--gold); color: var(--gold); }
@@ -447,6 +515,8 @@ footer {
   .menu-category-wide { grid-column: span 1; }
   .gallery-grid { grid-template-columns: repeat(2, 1fr); }
   .gallery-span-wide { grid-column: span 2; }
+  .why-us-sticky { gap: 40px; }
+  .why-us-image { height: 46vh; }
 }
 @media (max-width: 720px) {
   .nav-links > li:not(:last-child) { display: none; }
@@ -455,9 +525,16 @@ footer {
   .t-col-2, .t-col-3 { display: none; }
   .menu-columns-inner { grid-template-columns: 1fr; }
   .hero-links { gap: 20px 32px; }
+  /* The side-by-side sticky panel doesn't have room to breathe on a phone
+     screen — fall back to a normal stacked, non-pinned layout instead of
+     cramming image + 4 steps into one viewport height. */
+  .why-us-scroll { height: auto; }
+  .why-us-sticky { position: static; height: auto; flex-direction: column; gap: 32px; padding: 0 6%; }
+  .why-us-image { width: 100%; height: 260px; }
+  .why-step { opacity: 1; }
 }
 @media (max-width: 540px) {
-  section:not(.hero) { padding: 80px 6%; }
+  section:not(.hero-zoom):not(.why-us-scroll) { padding: 80px 6%; }
   .gallery-grid { grid-template-columns: 1fr; grid-auto-rows: 160px; }
   .gallery-span-wide, .gallery-span-tall { grid-column: span 1; grid-row: span 1; }
 }
@@ -468,6 +545,19 @@ footer {
 @media (prefers-reduced-motion: reduce) {
   .call-float { animation: none; }
   [data-scrub] { --scrub-progress: 1 !important; }
-  .hero-links { opacity: 1 !important; filter: none !important; transform: none !important; }
   .gallery-placeholder { opacity: 1 !important; transform: none !important; }
+  /* Collapse both pinned scroll-tracks to normal, single-viewport sections —
+     a user who's opted out of motion shouldn't have to scroll through two
+     empty screen-heights just to get past a zoom effect they'll never see. */
+  .hero-zoom, .why-us-scroll { height: auto; }
+  .hero-zoom-sticky { position: static; height: 100svh; }
+  .hero-zoom-bg { transform: none !important; }
+  .hero-zoom-content { opacity: 1 !important; transform: none !important; }
+  /* The menu-photo "arrival" only makes sense as a scroll reveal; without it,
+     showing it stacked on top of the title would just look broken. Skip it —
+     the real menu is one scroll away in the text section anyway. */
+  .hero-menu-polaroid { display: none; }
+  .why-us-sticky { position: static; height: auto; flex-direction: column; gap: 32px; padding-block: 60px; }
+  .why-us-image { width: 100%; height: 300px; }
+  .why-step { opacity: 1; }
 }

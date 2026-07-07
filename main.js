@@ -78,11 +78,19 @@
   // opacity/transform — no transition, so it tracks the scrollbar 1:1 in both
   // directions. Disabled entirely under prefers-reduced-motion (see gotcha A.2:
   // this IS an intrusive, continuous-parallax-style effect, unlike fades/counters).
+  //
+  // Every element's stored value follows ONE convention regardless of type:
+  // 1 = fully visible/settled, 0 = fully hidden/transitioned-away. That's why
+  // "zoom-fade" (which visually fades OUT as scroll increases) stores the
+  // INVERTED progress rather than the raw one — so every CSS rule can safely
+  // write `opacity: var(--scrub-progress, 1)` and default to visible if JS
+  // never sets a value at all (script blocked, error, etc.).
   function initScrub() {
     if (reducedMotion) return;
     var els = $$("[data-scrub]");
-    if (!els.length) return;
-    var hero = $(".hero");
+    var whyTrack = $(".why-us-scroll");
+    var whySteps = $$(".why-step");
+    if (!els.length && !whyTrack) return;
     var ticking = false;
 
     function clamp01(n) { return Math.min(Math.max(n, 0), 1); }
@@ -100,20 +108,45 @@
       return clamp01((vh - rect.top) / (vh - settleAt));
     }
 
+    // Pinned-scroll progress: for a tall wrapper (`.scroll-track`) containing
+    // a `position: sticky` inner panel, this returns how far the user has
+    // scrolled THROUGH that wrapper — 0 as it starts pinning, 1 as it's about
+    // to unpin. Used for both the hero zoom and the numbered "why us" panel.
+    function pinProgress(rect, height, vh) {
+      var scrollable = height - vh;
+      if (scrollable <= 0) return 1;
+      return clamp01(-rect.top / scrollable);
+    }
+
     function update() {
       ticking = false;
       var vh = window.innerHeight;
-      var heroRect = hero ? hero.getBoundingClientRect() : null;
 
       els.forEach(function (el) {
+        var type = el.dataset.scrub;
         var progress;
-        if (el.dataset.scrub === "hero" && heroRect) {
-          progress = clamp01(-heroRect.top / (heroRect.height || vh));
+        if (type === "zoom-bg" || type === "zoom-reveal") {
+          var track = el.closest(".scroll-track");
+          progress = track ? pinProgress(track.getBoundingClientRect(), track.offsetHeight, vh) : 0;
+        } else if (type === "zoom-fade") {
+          var track2 = el.closest(".scroll-track");
+          var raw = track2 ? pinProgress(track2.getBoundingClientRect(), track2.offsetHeight, vh) : 0;
+          progress = clamp01(1 - raw * 1.15); // finishes fading slightly before the zoom completes
         } else {
           progress = entranceProgress(el.getBoundingClientRect(), vh);
         }
         el.style.setProperty("--scrub-progress", progress.toFixed(3));
       });
+
+      // "Why us" numbered steps: a discrete active-step highlight rather than
+      // a continuous fade. Inactive steps sit at a fixed, clearly legible
+      // opacity (see CSS) — never near-zero — so there's no "stuck mid-fade"
+      // state possible here by construction, no safety net needed.
+      if (whyTrack && whySteps.length) {
+        var whyProgress = pinProgress(whyTrack.getBoundingClientRect(), whyTrack.offsetHeight, vh);
+        var activeIdx = Math.min(whySteps.length - 1, Math.floor(whyProgress * whySteps.length));
+        whySteps.forEach(function (step, i) { step.classList.toggle("is-active", i === activeIdx); });
+      }
     }
 
     function onScrollOrResize() {
@@ -129,12 +162,20 @@
     // Safety net (same idea as the 6s reveal fallback in initReveals): if an
     // entrance element is already visible but scroll math hasn't settled it
     // to progress=1 yet (anchor jump landing mid-section, a scroll event that
-    // never fired, etc.), force it. Hero is excluded — its fade is tied to
-    // scrolling AWAY from the top, so "visible" doesn't mean "settled" there.
+    // never fired, etc.), force it.
+    //
+    // "zoom-*" elements are deliberately excluded: they're expected to sit at
+    // a genuine mid-value for as long as the user dwells inside that pinned
+    // section (that IS the effect, not a bug), so forcing them to settle
+    // after a fixed timeout would snap the zoom/reveal shut on someone who's
+    // just reading the hero without having scrolled yet. Their safety instead
+    // comes from the CSS fallback (`var(--scrub-progress, 1)`), which only
+    // matters if JS never ran at all — not from a time-based force-settle.
     setTimeout(function () {
       var vh = window.innerHeight;
       els.forEach(function (el) {
-        if (el.dataset.scrub === "hero") return;
+        var type = el.dataset.scrub;
+        if (type && type.indexOf("zoom-") === 0) return;
         var current = parseFloat(el.style.getPropertyValue("--scrub-progress")) || 0;
         if (current < 1 && el.getBoundingClientRect().top < vh) {
           el.style.setProperty("--scrub-progress", "1");
@@ -235,7 +276,7 @@
   // (wa-float is commented out in index.html — the landline has no WhatsApp;
   // this selector simply matches fewer elements until it's reactivated)
   function initFloatButtons() {
-    var hero = $(".hero");
+    var hero = $(".hero-zoom");
     var floats = $$(".call-float, .wa-float");
     if (!hero || !floats.length) return;
     var io = new IntersectionObserver(function (entries) {
