@@ -153,6 +153,10 @@ nav.scrolled .nav-logo img { height: 38px; }
 .hero-zoom-sticky {
   position: sticky; top: 0; height: 100svh; overflow: hidden;
   display: flex; align-items: center; justify-content: center; text-align: center;
+  /* Keeps centered content (title, menu photo) clear of the fixed nav bar
+     above it — without this, tall centered content on short mobile
+     viewports can ride up underneath the nav and get clipped. */
+  padding-top: 88px;
 }
 .hero-zoom-bg {
   position: absolute; inset: 0; z-index: 0; width: 100%; height: 100%;
@@ -217,32 +221,27 @@ nav.scrolled .nav-logo img { height: 38px; }
 .status-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--cream-3); }
 .hero-status.is-open .status-dot { background: #4ADE80; box-shadow: 0 0 0 3px rgba(74,222,128,0.2); }
 
-/* Menu photo, presented "pinned to a corkboard" so its real, slightly
-   crooked angle reads as a deliberate rustic touch instead of an error —
-   see the note in the chat about not trying to digitally straighten it. */
+/* Menu photo — shown straight and large, framed like a real photo print. */
 .hero-menu-polaroid {
-  position: absolute; z-index: 4; width: min(300px, 70vw);
-  background: var(--cream); padding: 14px 14px 34px; border-radius: 2px;
+  position: absolute; z-index: 4;
+  width: min(480px, 88vw); max-height: 70svh;
+  background: var(--cream); padding: 16px 16px 20px; border-radius: 4px;
   box-shadow: 0 30px 60px -15px rgba(0,0,0,.65);
+  display: flex; flex-direction: column;
   /* Default (no JS): fully visible at rest, matching the anti-ghost rule —
      worst case if JS fails, the menu photo just shows immediately instead
      of being timed to the zoom. Never permanently hidden. */
   opacity: var(--scrub-progress, 1);
-  transform:
-    rotate(-3deg)
-    scale(calc(0.82 + var(--scrub-progress, 1) * 0.18))
-    translateY(calc((1 - var(--scrub-progress, 1)) * 24px));
+  transform: scale(calc(0.9 + var(--scrub-progress, 1) * 0.1)) translateY(calc((1 - var(--scrub-progress, 1)) * 24px));
   pointer-events: none;
 }
-.hero-menu-polaroid img { width: 100%; height: auto; display: block; filter: saturate(1.05); }
+.hero-menu-polaroid img {
+  width: 100%; height: auto; max-height: calc(70svh - 76px);
+  display: block; object-fit: contain; filter: saturate(1.05);
+}
 .hero-menu-polaroid figcaption {
   font-family: var(--serif); font-style: italic; color: #2a2622; text-align: center;
   margin-top: 10px; font-size: .95rem;
-}
-.polaroid-tape {
-  position: absolute; top: -13px; left: 50%; z-index: 1;
-  width: 68px; height: 26px; transform: translateX(-50%) rotate(-4deg);
-  background: rgba(233,185,73,.55); box-shadow: 0 2px 5px rgba(0,0,0,.25);
 }
 
 /* =============================================================
