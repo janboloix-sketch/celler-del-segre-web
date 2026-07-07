@@ -239,6 +239,14 @@ nav.scrolled .nav-logo img { height: 38px; }
   width: 100%; height: auto; max-height: calc(70svh - 76px);
   display: block; object-fit: contain; filter: saturate(1.05);
 }
+/* Little washi-tape strip pinning the photo down — kept straight (no
+   rotation) to match the now-straight frame, just a charming print-note
+   touch rather than the earlier "crooked corkboard" story. */
+.polaroid-tape {
+  position: absolute; top: -12px; left: 50%; z-index: 1;
+  width: 76px; height: 24px; transform: translateX(-50%);
+  background: rgba(233,185,73,.55); box-shadow: 0 2px 5px rgba(0,0,0,.25);
+}
 .hero-menu-polaroid figcaption {
   font-family: var(--serif); font-style: italic; color: #2a2622; text-align: center;
   margin-top: 10px; font-size: .95rem;
