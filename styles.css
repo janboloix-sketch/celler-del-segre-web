@@ -91,7 +91,7 @@ nav {
   border-bottom: 1px solid transparent;
   padding: 0 5%;
   display: flex; align-items: center; justify-content: space-between;
-  height: 98px;
+  height: 110px;
   transition: background .35s var(--ease-out), border-color .35s var(--ease-out), height .35s var(--ease-out);
 }
 nav.scrolled {
@@ -99,11 +99,11 @@ nav.scrolled {
   backdrop-filter: blur(10px) saturate(140%);
   -webkit-backdrop-filter: blur(10px) saturate(140%);
   border-bottom-color: var(--line);
-  height: 78px;
+  height: 86px;
 }
 .nav-logo { display: flex; align-items: center; height: 100%; }
-.nav-logo img { height: 64px; width: auto; border-radius: 6px; transition: height .35s var(--ease-out); }
-nav.scrolled .nav-logo img { height: 50px; }
+.nav-logo img { height: 78px; width: auto; border-radius: 6px; transition: height .35s var(--ease-out); }
+nav.scrolled .nav-logo img { height: 60px; }
 .nav-links { display: flex; align-items: center; gap: 32px; list-style: none; }
 .nav-links a { color: var(--cream-2); text-decoration: none; font-size: 13px; letter-spacing: .08em; text-transform: uppercase; position: relative; transition: color .2s; }
 .nav-links a:not(.nav-icon)::after {
@@ -157,7 +157,7 @@ nav.scrolled .nav-logo img { height: 50px; }
   /* Keeps centered content (title, menu photo) clear of the fixed nav bar
      above it — without this, tall centered content on short mobile
      viewports can ride up underneath the nav and get clipped. */
-  padding-top: 98px;
+  padding-top: 110px;
 }
 .hero-zoom-bg {
   position: absolute; inset: 0; z-index: 0; width: 100%; height: 100%;
@@ -362,7 +362,7 @@ section h2 { font-size: clamp(1.9rem, 3.6vw, 2.7rem); color: var(--cream); }
    real content; the scroll-linked crossfade below is a progressive
    enhancement layered on top, never a replacement for it. */
 .why-us-scroll { position: relative; }
-.why-us-sticky { max-width: 1180px; margin: 0 auto; padding: 0 6%; }
+.why-us-sticky { max-width: 1180px; margin: 0 auto; padding: 110px 6%; }
 .why-us-kicker {
   display: block; text-align: center; margin-bottom: 44px;
   font-size: 20px; letter-spacing: .12em; color: var(--cream);
@@ -388,13 +388,19 @@ section h2 { font-size: clamp(1.9rem, 3.6vw, 2.7rem); color: var(--cream); }
   position: sticky; top: 0; height: 100svh;
   display: flex; flex-direction: column; justify-content: center;
 }
-.why-us-scroll.pin-enhanced .why-slides { position: relative; height: 340px; }
+.why-us-scroll.pin-enhanced .why-slides { position: relative; height: 500px; }
 .why-us-scroll.pin-enhanced .why-slide {
   position: absolute; inset: 0;
   opacity: 0; transition: opacity .5s var(--ease-out);
   pointer-events: none;
 }
 .why-us-scroll.pin-enhanced .why-slide.is-active { opacity: 1; pointer-events: auto; }
+/* .why-slide uses align-items:center in the baseline (content-sized,
+   normal-flow) layout, which is right there — but it means the image never
+   stretches to fill the pinned 500px box, since a centered flex item sizes
+   to its own content instead. Stretch only in the pinned/absolute variant. */
+.why-us-scroll.pin-enhanced .why-slide { align-items: stretch; }
+.why-us-scroll.pin-enhanced .why-slide-image img { width: 100%; height: 100%; object-fit: cover; }
 
 /* =============================================================
    11. Why / rating
@@ -551,12 +557,21 @@ footer {
   .hero-links { gap: 20px 32px; }
   /* JS never adds .pin-enhanced below the 720px breakpoint (see
      initWhySlides), so this just tidies up the baseline stacked layout —
-     no side-by-side room on a phone screen for the alternating zigzag. */
+     no side-by-side room on a phone screen for the alternating zigzag.
+     The alternating DOM order (text-first on odd slides, image-first on
+     even ones) reads as "text image / image text / text image..." once
+     everything stacks in one column — two images or two text blocks end up
+     next to each other at the seams. Force image-always-on-top with
+     `order` so every slide stacks the same way regardless of which side it
+     was on for the desktop zigzag. */
   .why-slide { flex-direction: column; gap: 20px; }
+  .why-slide-image { order: 1; }
+  .why-slide-text { order: 2; }
   .why-slide-image img { height: 220px; }
 }
 @media (max-width: 540px) {
   section:not(.hero-zoom):not(.why-us-scroll) { padding: 80px 6%; }
+  .why-us-sticky { padding: 80px 6%; }
   .gallery-grid { grid-template-columns: 1fr; grid-auto-rows: 160px; }
   .gallery-span-wide, .gallery-span-tall { grid-column: span 1; grid-row: span 1; }
 }
