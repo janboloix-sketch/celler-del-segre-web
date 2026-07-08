@@ -5,6 +5,7 @@
   --bg:        #0b0a09;
   --bg-2:      #131110;
   --bg-3:      #1c1917;
+  --bg-alt:    #1a130d;
   --cream:     #F5EFE4;
   --cream-2:   #CBC2B4;
   --cream-3:   #8A8178;
@@ -90,7 +91,7 @@ nav {
   border-bottom: 1px solid transparent;
   padding: 0 5%;
   display: flex; align-items: center; justify-content: space-between;
-  height: 88px;
+  height: 98px;
   transition: background .35s var(--ease-out), border-color .35s var(--ease-out), height .35s var(--ease-out);
 }
 nav.scrolled {
@@ -98,11 +99,11 @@ nav.scrolled {
   backdrop-filter: blur(10px) saturate(140%);
   -webkit-backdrop-filter: blur(10px) saturate(140%);
   border-bottom-color: var(--line);
-  height: 68px;
+  height: 78px;
 }
 .nav-logo { display: flex; align-items: center; height: 100%; }
-.nav-logo img { height: 46px; width: auto; border-radius: 6px; transition: height .35s var(--ease-out); }
-nav.scrolled .nav-logo img { height: 38px; }
+.nav-logo img { height: 64px; width: auto; border-radius: 6px; transition: height .35s var(--ease-out); }
+nav.scrolled .nav-logo img { height: 50px; }
 .nav-links { display: flex; align-items: center; gap: 32px; list-style: none; }
 .nav-links a { color: var(--cream-2); text-decoration: none; font-size: 13px; letter-spacing: .08em; text-transform: uppercase; position: relative; transition: color .2s; }
 .nav-links a:not(.nav-icon)::after {
@@ -156,7 +157,7 @@ nav.scrolled .nav-logo img { height: 38px; }
   /* Keeps centered content (title, menu photo) clear of the fixed nav bar
      above it — without this, tall centered content on short mobile
      viewports can ride up underneath the nav and get clipped. */
-  padding-top: 88px;
+  padding-top: 98px;
 }
 .hero-zoom-bg {
   position: absolute; inset: 0; z-index: 0; width: 100%; height: 100%;
@@ -249,13 +250,18 @@ nav.scrolled .nav-logo img { height: 38px; }
 }
 .hero-menu-polaroid figcaption {
   font-family: var(--serif); font-style: italic; color: #2a2622; text-align: center;
-  margin-top: 10px; font-size: .95rem;
+  margin-bottom: 12px; font-size: 1.05rem; font-weight: 500;
 }
 
 /* =============================================================
    8. Section shells
    ============================================================= */
 section:not(.hero-zoom):not(.why-us-scroll) { padding: 110px 6%; position: relative; }
+/* Alternating warm-dark background so each section reads as its own
+   "chapter" instead of one long unbroken black page — plus a hairline to
+   mark the handoff even where the color shift is subtle. */
+main > section:not(.hero-zoom) { border-top: 1px solid var(--line); }
+.menu-section, .gallery-section, .reviews { background: var(--bg-alt); }
 .section-head { max-width: 640px; margin: 0 auto 56px; text-align: center; }
 .section-kicker {
   display: inline-block; color: var(--cream-3); font-weight: 500; text-transform: uppercase;
@@ -349,34 +355,46 @@ section h2 { font-size: clamp(1.9rem, 3.6vw, 2.7rem); color: var(--cream); }
 .gallery-placeholder span { font-size: 11px; letter-spacing: .1em; text-transform: uppercase; }
 
 /* =============================================================
-   10b. Per què triar-nos — numbered scroll panel
+   10b. Per què triar-nos — alternating image/text slides
    ============================================================= */
-.why-us-scroll { position: relative; height: 200vh; }
-.why-us-sticky {
+/* Baseline (works with no JS at all): a plain, readable, stacked zigzag
+   list — every point fully visible, nothing pinned or hidden. This is the
+   real content; the scroll-linked crossfade below is a progressive
+   enhancement layered on top, never a replacement for it. */
+.why-us-scroll { position: relative; }
+.why-us-sticky { max-width: 1180px; margin: 0 auto; padding: 0 6%; }
+.why-us-kicker {
+  display: block; text-align: center; margin-bottom: 44px;
+  font-size: 20px; letter-spacing: .12em; color: var(--cream);
+  font-family: var(--serif); font-style: italic; text-transform: none; font-weight: 500;
+}
+.why-slides { display: flex; flex-direction: column; gap: 70px; }
+.why-slide { display: flex; align-items: center; gap: 56px; }
+.why-slide-image { flex: 1; }
+.why-slide-image img {
+  width: 100%; height: 320px; object-fit: cover;
+  border-radius: var(--radius); border: 1px solid var(--line);
+}
+.why-slide-text { flex: 1; }
+.why-slide-num { display: block; font-family: var(--serif); font-size: 1.3rem; color: var(--accent); margin-bottom: 8px; }
+.why-slide-text h3 { font-size: 1.4rem; color: var(--cream); margin-bottom: 8px; }
+.why-slide-text p { color: var(--cream-2); font-size: 1rem; }
+
+/* Enhanced (class added by JS only once it's actually running — see
+   initWhySlides): pins the panel and crossfades one slide at a time as the
+   user scrolls, each one alternating image side left/right/left/right. */
+.why-us-scroll.pin-enhanced { height: 260vh; }
+.why-us-scroll.pin-enhanced .why-us-sticky {
   position: sticky; top: 0; height: 100svh;
-  display: flex; align-items: center; gap: 64px;
-  max-width: 1180px; margin: 0 auto; padding: 0 6%;
+  display: flex; flex-direction: column; justify-content: center;
 }
-.why-us-image { flex: 1; height: 60vh; border-radius: var(--radius); overflow: hidden; border: 1px solid var(--line); }
-.why-us-image img { width: 100%; height: 100%; object-fit: cover; }
-.why-us-steps { flex: 1; }
-.why-step-list { list-style: none; display: flex; flex-direction: column; gap: 30px; margin-top: 28px; }
-.why-step {
-  display: flex; gap: 18px; align-items: flex-start;
-  /* Base resting state is clearly legible on its own (not near-invisible) —
-     only the active step gets brighter. No --scrub-progress involved here on
-     purpose: a discrete class toggle can't get stuck at a washed-out
-     mid-opacity the way a continuous fade can. */
-  opacity: .55; transition: opacity .4s var(--ease-out);
+.why-us-scroll.pin-enhanced .why-slides { position: relative; height: 340px; }
+.why-us-scroll.pin-enhanced .why-slide {
+  position: absolute; inset: 0;
+  opacity: 0; transition: opacity .5s var(--ease-out);
+  pointer-events: none;
 }
-.why-step.is-active { opacity: 1; }
-.why-step-num {
-  font-family: var(--serif); font-size: 1.4rem; color: var(--cream-3);
-  flex-shrink: 0; transition: color .4s var(--ease-out);
-}
-.why-step.is-active .why-step-num { color: var(--accent); }
-.why-step h3 { font-size: 1.15rem; color: var(--cream); margin-bottom: 4px; }
-.why-step p { color: var(--cream-2); font-size: .92rem; }
+.why-us-scroll.pin-enhanced .why-slide.is-active { opacity: 1; pointer-events: auto; }
 
 /* =============================================================
    11. Why / rating
@@ -490,7 +508,7 @@ footer {
   display: flex; flex-direction: column; gap: 16px; align-items: center;
   color: var(--cream-3); font-size: .85rem;
 }
-.footer-logo { height: 44px; width: auto; border-radius: 6px; }
+.footer-logo { height: 76px; width: auto; border-radius: 6px; }
 .footer-social { width: 34px; height: 34px; border-radius: 50%; border: 1px solid var(--line); display: flex; align-items: center; justify-content: center; color: var(--cream-2); transition: border-color .2s, color .2s; }
 .footer-social svg { width: 16px; height: 16px; }
 .footer-social:hover { border-color: var(--gold); color: var(--gold); }
@@ -522,8 +540,7 @@ footer {
   .menu-category-wide { grid-column: span 1; }
   .gallery-grid { grid-template-columns: repeat(2, 1fr); }
   .gallery-span-wide { grid-column: span 2; }
-  .why-us-sticky { gap: 40px; }
-  .why-us-image { height: 46vh; }
+  .why-slide-image img { height: 260px; }
 }
 @media (max-width: 720px) {
   .nav-links > li:not(:last-child) { display: none; }
@@ -532,13 +549,11 @@ footer {
   .t-col-2, .t-col-3 { display: none; }
   .menu-columns-inner { grid-template-columns: 1fr; }
   .hero-links { gap: 20px 32px; }
-  /* The side-by-side sticky panel doesn't have room to breathe on a phone
-     screen — fall back to a normal stacked, non-pinned layout instead of
-     cramming image + 4 steps into one viewport height. */
-  .why-us-scroll { height: auto; }
-  .why-us-sticky { position: static; height: auto; flex-direction: column; gap: 32px; padding: 0 6%; }
-  .why-us-image { width: 100%; height: 260px; }
-  .why-step { opacity: 1; }
+  /* JS never adds .pin-enhanced below the 720px breakpoint (see
+     initWhySlides), so this just tidies up the baseline stacked layout —
+     no side-by-side room on a phone screen for the alternating zigzag. */
+  .why-slide { flex-direction: column; gap: 20px; }
+  .why-slide-image img { height: 220px; }
 }
 @media (max-width: 540px) {
   section:not(.hero-zoom):not(.why-us-scroll) { padding: 80px 6%; }
@@ -553,10 +568,13 @@ footer {
   .call-float { animation: none; }
   [data-scrub] { --scrub-progress: 1 !important; }
   .gallery-placeholder { opacity: 1 !important; transform: none !important; }
-  /* Collapse both pinned scroll-tracks to normal, single-viewport sections —
-     a user who's opted out of motion shouldn't have to scroll through two
-     empty screen-heights just to get past a zoom effect they'll never see. */
-  .hero-zoom, .why-us-scroll { height: auto; }
+  /* Collapse the hero's pinned scroll-track to a normal, single-viewport
+     section — a user who's opted out of motion shouldn't have to scroll
+     through two empty screen-heights just to get past a zoom effect they'll
+     never see. (Per què triar-nos needs no equivalent override: JS never
+     adds .pin-enhanced under reduced motion, so it's already just a normal
+     stacked list — see initWhySlides.) */
+  .hero-zoom { height: auto; }
   .hero-zoom-sticky { position: static; height: 100svh; }
   .hero-zoom-bg { transform: none !important; }
   .hero-zoom-content { opacity: 1 !important; transform: none !important; }
@@ -564,7 +582,4 @@ footer {
      showing it stacked on top of the title would just look broken. Skip it —
      the real menu is one scroll away in the text section anyway. */
   .hero-menu-polaroid { display: none; }
-  .why-us-sticky { position: static; height: auto; flex-direction: column; gap: 32px; padding-block: 60px; }
-  .why-us-image { width: 100%; height: 300px; }
-  .why-step { opacity: 1; }
 }

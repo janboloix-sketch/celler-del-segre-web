@@ -12,6 +12,18 @@
     try { fn(); } catch (e) { console.warn("[" + name + "] failed:", e); }
   }
 
+  function clamp01(n) { return Math.min(Math.max(n, 0), 1); }
+
+  // Pinned-scroll progress: for a tall wrapper (`.scroll-track`) containing a
+  // `position: sticky` inner panel, this returns how far the user has
+  // scrolled THROUGH that wrapper — 0 as it starts pinning, 1 as it's about
+  // to unpin. Shared by the hero zoom and the "why us" slide crossfade.
+  function pinProgress(rect, height, vh) {
+    var scrollable = height - vh;
+    if (scrollable <= 0) return 1;
+    return clamp01(-rect.top / scrollable);
+  }
+
   // ---- Splash: double safety net (CSS handles the 2.4s fallback) ----
   function initSplash() {
     var splash = $("[data-splash]");
@@ -88,12 +100,8 @@
   function initScrub() {
     if (reducedMotion) return;
     var els = $$("[data-scrub]");
-    var whyTrack = $(".why-us-scroll");
-    var whySteps = $$(".why-step");
-    if (!els.length && !whyTrack) return;
+    if (!els.length) return;
     var ticking = false;
-
-    function clamp01(n) { return Math.min(Math.max(n, 0), 1); }
 
     // Entrance elements (rise/slide) settle to progress=1 once they've risen
     // to ~60% down the viewport — i.e. "comfortably on screen" — instead of
@@ -106,16 +114,6 @@
     function entranceProgress(rect, vh) {
       var settleAt = vh * 0.6;
       return clamp01((vh - rect.top) / (vh - settleAt));
-    }
-
-    // Pinned-scroll progress: for a tall wrapper (`.scroll-track`) containing
-    // a `position: sticky` inner panel, this returns how far the user has
-    // scrolled THROUGH that wrapper — 0 as it starts pinning, 1 as it's about
-    // to unpin. Used for both the hero zoom and the numbered "why us" panel.
-    function pinProgress(rect, height, vh) {
-      var scrollable = height - vh;
-      if (scrollable <= 0) return 1;
-      return clamp01(-rect.top / scrollable);
     }
 
     function update() {
@@ -137,16 +135,6 @@
         }
         el.style.setProperty("--scrub-progress", progress.toFixed(3));
       });
-
-      // "Why us" numbered steps: a discrete active-step highlight rather than
-      // a continuous fade. Inactive steps sit at a fixed, clearly legible
-      // opacity (see CSS) — never near-zero — so there's no "stuck mid-fade"
-      // state possible here by construction, no safety net needed.
-      if (whyTrack && whySteps.length) {
-        var whyProgress = pinProgress(whyTrack.getBoundingClientRect(), whyTrack.offsetHeight, vh);
-        var activeIdx = Math.min(whySteps.length - 1, Math.floor(whyProgress * whySteps.length));
-        whySteps.forEach(function (step, i) { step.classList.toggle("is-active", i === activeIdx); });
-      }
     }
 
     function onScrollOrResize() {
@@ -182,6 +170,42 @@
         }
       });
     }, 2000);
+  }
+
+  // ---- "Per què triar-nos" alternating slides ----
+  // The baseline markup/CSS is a plain stacked zigzag list — fully readable
+  // with JS off. This function is a pure progressive enhancement: it pins
+  // the panel and crossfades one slide at a time (each alternating image
+  // side) ONLY once we've confirmed it's actually running, and skips it
+  // under reduced motion or on narrow screens where the side-by-side layout
+  // wouldn't fit anyway (matching the .pin-enhanced rules in styles.css —
+  // without JS or on those paths, all 4 points just stay visible in flow).
+  function initWhySlides() {
+    var track = $(".why-us-scroll");
+    var slides = $$(".why-slide", track || document);
+    if (!track || !slides.length) return;
+    if (reducedMotion || window.innerWidth <= 720) return;
+
+    track.classList.add("pin-enhanced");
+    var ticking = false;
+
+    function update() {
+      ticking = false;
+      var vh = window.innerHeight;
+      var progress = pinProgress(track.getBoundingClientRect(), track.offsetHeight, vh);
+      var activeIdx = Math.min(slides.length - 1, Math.floor(progress * slides.length));
+      slides.forEach(function (slide, i) { slide.classList.toggle("is-active", i === activeIdx); });
+    }
+
+    function onScrollOrResize() {
+      if (ticking) return;
+      ticking = true;
+      requestAnimationFrame(update);
+    }
+
+    update();
+    window.addEventListener("scroll", onScrollOrResize, { passive: true });
+    window.addEventListener("resize", onScrollOrResize);
   }
 
   // ---- Schedule / open-closed status (real per-day hours) ----
@@ -320,6 +344,7 @@
     safe(initNav, "initNav");
     safe(initReveals, "initReveals");
     safe(initScrub, "initScrub");
+    safe(initWhySlides, "initWhySlides");
     safe(initSchedule, "initSchedule");
     safe(initMarquee, "initMarquee");
     safe(initTilt, "initTilt");
